@@ -2,250 +2,254 @@ import random
 import tkinter
 import tkinter as tk
 from tkinter import *
-from tkinter import ttk
+from PIL import Image, ImageTk
 
 
 def choose_topics():
     new_window = tk.Toplevel(window)
-    #new_window.geometry('1310x1000')
-    new_window.state('zoomed')
+    new_window.attributes('-fullscreen', True)
+    widthN = new_window.winfo_screenwidth()
+    heightN = new_window.winfo_screenheight()
     new_window.title('Выбор тем')
-    #photo = tk.PhotoImage(file="png-clipart-cats-cats.png")
-    #new_window.iconphoto(False, photo)
-    label = Label(new_window, text="Выберите интересующие Вас темы:",font='Arial 17')
-    label.pack()
-    button = Button(new_window, text='ЖИВОТНЫЕ', command=interes,font='Arial 17')
-    button.pack(padx=5, pady=5)
-    button = Button(new_window, text='ФРУКТЫ', command=interes1,font='Arial 17')
-    button.pack(padx=5, pady=5)
-    button = Button(new_window, text='ОВОЩИ', command=interes2,font='Arial 17')
-    button.pack(padx=5, pady=5)
-    button = Button(new_window, text='ЦВЕТА', command=interes3,font='Arial 17')
-    button.pack(padx=5, pady=5)
-    label = Label(new_window, text="После выбора тем нажмите кнопку CONTINUE",font='Arial 17')
-    label.pack()
-    contButton = Button(new_window, text="CONTINUE",command=start,font='Arial 17')
-    contButton.pack()
+    canvas = Canvas(new_window, width=widthN, height=heightN)
+    canvas.config(bg="#848470")
+    canvas.pack()
+    canvas.create_image(0, 0, image=img, anchor="nw")
+    new_window.geometry(f"{widthN}x{heightN}+0+0")
+    text1= canvas.create_text(width_window / 2 - 150, height_window / 2 - 270,
+                              text="Выберите интересующие Вас темы:",
+                              font=("Arial", 24), fill="white")
+    animals = Button(new_window, text='ЖИВОТНЫЕ', command=interes,font='Arial 17',bg="#848470")
+    animals.place(x=100, y=140)
+    fruits = Button(new_window, text='ФРУКТЫ', command=interes1,font='Arial 17',bg="#848470")
+    fruits.place(x=100, y=200)
+    vegetables = Button(new_window, text='ОВОЩИ', command=interes2,font='Arial 17',bg="#848470")
+    vegetables.place(x=100, y=260)
+    colors = Button(new_window, text='ЦВЕТА', command=interes3,font='Arial 17',bg="#848470")
+    colors.place(x=100, y=320)
+    cities = Button(new_window, text='ГОРОДА', command=interes4,font='Arial 17',bg="#848470")
+    cities.place(x=100, y=380)
+
+    text = canvas.create_text(width_window / 2-150, height_window / 2+120,
+                              text="Выберите тип игры:",
+                              font=("Arial", 24), fill="white")
+
+    contButton = Button(new_window, text="CONTINUE",command=pred_start,font='Arial 17',bg="#848470")
+    contButton.place(x=widthN-250,y=heightN-150)
+
+    oneplayer = Button(new_window, text="1 ИГРОК",command=one,font='Arial 17', bg="#848470")
+    oneplayer.place(x=170, y=550)
+
+    twoplayer = Button(new_window, text="2 ИГРОКА",command=two, font='Arial 17', bg="#848470")
+    twoplayer.place(x=350, y=550)
+count_player=0
+def vbr_game():
+    if count_player==1:
+        start()
+    else:
+        'тут сделать функцию для игры на двух человек'
+def pred_start():
+    winStart = tk.Toplevel(window)
+    winStart.title('Имена игроков')
+    screen_width = winStart.winfo_screenwidth()
+    screen_height = winStart.winfo_screenheight()
+    win_width = 300
+    win_height = 180
+    x = (screen_width / 2) - (win_width / 2)
+    y = (screen_height / 2) - (win_height / 2)
+    winStart.geometry('%dx%d+%d+%d' % (win_width, win_height, x, y))
+    if count_player==1:
+        label = Label(winStart, text="Введите имя игрока:", font='Arial 18')
+        label.pack()
+        frame1 = tkinter.Frame(winStart)
+        frame1.pack()
+        name_one = tkinter.Entry(frame1)
+        name_one.pack()
+        name1 = name_one.get()
+        button = Button(winStart, text='CONTINUE', bg="#848470", fg="black", command=start, font='Arial 18')
+        button.place(x=win_width - 150, y=win_height - 40)
+    elif count_player==2:
+        label = Label(winStart, text="Введите имена игроков", font='Arial 18',bg="#848470")
+        label.pack()
+        label = Label(winStart, text="Имя первого игрока:", font='Arial 18')
+        label.pack()
+        frame1 = tkinter.Frame(winStart)
+        frame1.pack()
+        name_one = tkinter.Entry(frame1)
+        name_one.pack()
+        name1 = name_one.get()
+        label = Label(winStart, text="Имя второго игрока:", font='Arial 18')
+        label.pack()
+        frame2 = tkinter.Frame(winStart)
+        frame2.pack()
+        name_two = tkinter.Entry(frame2)
+        name_two.pack()
+        name2 = name_two.get()
+        button = Button(winStart, text='CONTINUE', bg="#848470", fg="black", command=vbr_game, font='Arial 18')
+        button.place(x=win_width-150, y=win_height-40)
+    else:
+        label = Label(winStart, text="Выберите количество\n"
+                                     "игроков", font='Arial 18')
+        label.pack()
+
+def one():
+    global count_player
+    count_player = 1
+def two():
+    global count_player
+    count_player = 2
+
 
 
 def start():
+    global lifes
+    lifes=5
     start_window=tk.Toplevel(window)
-    #start_window.geometry('1310x1000')
-    start_window.state('zoomed')
+    start_window.attributes('-fullscreen', True)
+    widthS = start_window.winfo_screenwidth()
+    heightS = start_window.winfo_screenheight()
     start_window.title('Игра')
-    #photo = tk.PhotoImage(file="png-clipart-cats-cats.png")
-    #start_window.iconphoto(False, photo)
+    canvas = Canvas(start_window, width=widthS, height=heightS)
+    canvas.config(bg="#848470")
+    canvas.pack()
+    canvas.create_image(0, 0, image=img, anchor="nw")
+    start_window.geometry(f"{width_window}x{height_window}+0+0")
     text=random.choice(slova)
-    random_slovo = random.choice(slova[0])
-    label = Label(start_window, text="Вам выпала тема: "+str(text[0]), font='Arial 17')
-    label.pack()
+    text1 = canvas.create_text(widthS / 2, heightS-620 ,
+                              text="Вам выпала тема:"+str(text[0]),
+                              font=("Arial", 20), fill="white")
+    slovo_and_podskazka=random.choice(text[1::])
+    slovo=slovo_and_podskazka[0]
+    label_word=[]
+    btn_alpha=[]
+    def podskazka():
+        window_podskazka = tk.Toplevel(window)
+        window_podskazka.title('Подсказка')
+        label = Label(window_podskazka, text=slovo_and_podskazka[1], font='Arial 16',bg="#848470")
+        label.pack()
+    def alphabet():
+        x = y = 0
+        count = 0
+        for c in range(ord('А'), ord('Я') + 1):
+            button = Button(start_window,text=chr(c), font='Arial 16',bg="#848470")
+            button.place(x=800+x, y=350-y)
+            button.bind('<Button-1>', lambda clicking: check(clicking,slovo))
+            btn_alpha.append(button)
+            x += 40
+            count += 1
+            if (count == 8):
+                x = count = 0
+                y -= 50
+        button = tkinter.Button(start_window, text='Взять подсказку', font='Arial 16',bg="#848470",command=podskazka)
+        button.place(x=800 +x, y=350 -y)
+        button = tkinter.Button(start_window, text='Сдаться', font='Arial 16',bg="#848470")
+        button.place(x=800 +x+180, y=350 -y)
 
+    def pos_word(slovo):
+        x = 0
+        for i in range(len(slovo)):
+            pos = Label(start_window, text='_', font='Arial 16',bg="#848470")
+            pos.place(x=800+ x, y=270)
+            x += 50
+            label_word.append(pos)
+    def draw():
+        if lifes==4:
+            'либо рисовать человечка либо менять фон с частями виселицы'
+        elif lifes==3:
+            1
+        elif lifes==2:
+            1
+        elif lifes==1:
+            1
+        else:
+            1
 
-    def split(random_slovo):
-        return [char for char in random_slovo]
+    def check(clicking, slovo):
+        alpha = clicking.widget['text']
+        pos = []
+        for i in range(len(slovo)):
+            if (slovo[i] == alpha):
+                pos.append(i)
+                for btn in btn_alpha:
+                    if btn["text"] == alpha:
+                        btn["bg"] = "green"
+        if (pos):
+            for i in pos:
+                label_word[i].config(text='{}'.format(slovo[i]))
+            count_alpha=0
+            for i in label_word:
+                if(i["text"].isalpha()):
+                    count_alpha+=1
+            if (count_alpha==len(slovo)):
+                game_over('win')
+        else:
+            global lifes
+            lifes-=1
+            draw()
+            for btn in btn_alpha:
+                if btn["text"] == alpha:
+                    btn["bg"] = "red"
+            if (lifes==0):
+                game_over('lose')
+    def game_over(status):
+        if status=='win':
+            print('win')
+        else:
+            print('lose')
+            '''доделать окна с вариантами что делать дальше'''
 
-    split_slovo = split(random_slovo)
-    split_slovo2 = split(random_slovo)
+    alphabet()
+    pos_word(slovo)
 
-    print(random_slovo)
-    s=[]
-    def event_info():
-        def klava(event):
-            a = event.keysym
-
-            if random_slovo.find(a) == -1:
-                s.append("1")
-                if len(s) == 1:
-                    # голова
-                    canvas.create_oval([450, 150], [550, 250], fill="pink", outline="yellow")
-                if len(s) == 2:
-                    # тело
-                    canvas.create_polygon([500, 250], [400, 400], [600, 400], fill="pink", outline="yellow")
-                if len(s) == 3:
-                    # рука 1
-                    canvas.create_line(450, 325, 500, 350, width=5, fill="#CD5C5C")
-                if len(s) == 4:
-                    # рука 2
-                    canvas.create_line(550, 325, 500, 350, width=5, fill="#CD5C5C")
-                if len(s) == 5:
-                    # нога 1
-                    canvas.create_line(475, 400, 475, 500, width=5, fill="#CD5C5C")
-                if len(s) == 6:
-                    # нога 2
-                    canvas.create_line(525, 400, 525, 500, width=5, fill="#CD5C5C")
-                if len(s) == 7:
-                    # глаз 1
-                    canvas.create_line(470, 170, 490, 190, width=2, fill="black")
-                    canvas.create_line(490, 170, 470, 190, width=2, fill="black")
-                    # глаз 2
-                    canvas.create_line(510, 170, 530, 190, width=2, fill="black")
-                    canvas.create_line(530, 170, 510, 190, width=2, fill="black")
-                    game_over = Tk()
-                    game_over.state('zoomed')
-                    label = Label(game_over, text="game over", font='Arial 20')
-                    label.pack(padx=10, pady=10)
-                    if len(kate) > len(polina):
-                        label = Label(game_over, text="выиграла kate", font='Arial 20')
-                        label.pack(padx=20, pady=20)
-                    else:
-                        if len(kate) < len(polina):
-                            label = Label(game_over, text="выиграла polina", font='Arial 20')
-                            label.pack(padx=20, pady=20)
-                        else:
-                            label = Label(game_over, text="ничья", font='Arial 20')
-                            label.pack(padx=20, pady=20)
-            else:
-                if len(hod) % 2 == 0:
-                    kate.append("1")
-                    canvas.create_text(900, 150, text=str(len(kate)), font="Verdana 19")
-                    canvas.create_text(800, 150, text="KATE: ", font="Verdana 19", fill="red")
-                    canvas.create_text(800, 200, text="POLINA: ", font="Verdana 19", fill="black")
-                else:
-                    polina.append("1")
-                    canvas.create_text(900, 200, text=str(len(polina)), font="Verdana 19")
-                    canvas.create_text(800, 150, text="KATE: ", font="Verdana 19", fill="black")
-                    canvas.create_text(800, 200, text="POLINA: ", font="Verdana 19", fill="red")
-                for i in range(0,len(split_slovo2)):
-                    c=i*40
-                    if split_slovo2[i]==a:
-                        canvas.create_text(815 + c, 585, text=a, font="Verdana 19")
-                    c=0
-
-                for j in range(0,split_slovo.count(a)):
-                    split_slovo.remove(a)
-                if len(split_slovo)==0:
-                    game_over = Tk()
-                    game_over.state('zoomed')
-                    label = Label(game_over, text="game over", font='Arial 20')
-                    label.pack(padx=10, pady=10)
-                    if len(kate)>len(polina):
-                        label = Label(game_over, text="выиграла kate", font='Arial 20')
-                        label.pack(padx=20, pady=20)
-                    else:
-                        if len(kate)<len(polina):
-                            label = Label(game_over, text="выиграла polina", font='Arial 20')
-                            label.pack(padx=20, pady=20)
-                        else:
-                            label = Label(game_over, text="ничья", font='Arial 20')
-                            label.pack(padx=20, pady=20)
-
-            hod.append("1")
-
-
-
-
-        root = Tk()
-        root.state('zoomed')
-
-        canvas = Canvas(root, width=1200, height=1600, bg="gray", cursor="pencil")
-        # висилица
-        canvas.create_line(30, 10, 30, 1600, width=5, fill="black")
-        canvas.create_line(30, 10, 500, 10, width=5, fill="black")
-        canvas.create_line(500, 10, 500, 200, width=5, fill="black")
-
-        canvas.create_text(800, 150, text="KATE: ", font="Verdana 19")
-        canvas.create_text(800, 200, text="POLINA: ", font="Verdana 19")
-        canvas.pack()
-
-        kate=[]
-        polina=[]
-        hod=["1","1"]
-
-        sum = 0
-        for i in range(len(split_slovo)):
-            canvas.create_line(800 + sum, 600, 830 + sum, 600, width=5, fill="black")
-            sum += 40
-        canvas.pack()
-
-
-        root.bind('q', klava)
-        root.bind('Q', klava)
-        root.bind('w', klava)
-        root.bind('W', klava)
-        root.bind('e', klava)
-        root.bind('E', klava)
-        root.bind('r', klava)
-        root.bind('R', klava)
-        root.bind('t', klava)
-        root.bind('T', klava)
-        root.bind('y', klava)
-        root.bind('Y', klava)
-        root.bind('u', klava)
-        root.bind('U', klava)
-        root.bind('i', klava)
-        root.bind('I', klava)
-        root.bind('o', klava)
-        root.bind('O', klava)
-        root.bind('p', klava)
-        root.bind('P', klava)
-        root.bind('a', klava)
-        root.bind('A', klava)
-        root.bind('s', klava)
-        root.bind('S', klava)
-        root.bind('d', klava)
-        root.bind('D', klava)
-        root.bind('f', klava)
-        root.bind('F', klava)
-        root.bind('g', klava)
-        root.bind('G', klava)
-        root.bind('h', klava)
-        root.bind('H', klava)
-        root.bind('j', klava)
-        root.bind('J', klava)
-        root.bind('k', klava)
-        root.bind('K', klava)
-        root.bind('l', klava)
-        root.bind('L', klava)
-        root.bind('z', klava)
-        root.bind('Z', klava)
-        root.bind('x', klava)
-        root.bind('X', klava)
-        root.bind('c', klava)
-        root.bind('C', klava)
-        root.bind('v', klava)
-        root.bind('V', klava)
-        root.bind('b', klava)
-        root.bind('B', klava)
-        root.bind('n', klava)
-        root.bind('N', klava)
-        root.bind('m', klava)
-        root.bind('M', klava)
-
-    contButton = Button(start_window, text="CONTINUE", command=event_info, font='Arial 17')
-    contButton.pack()
 
 
 slova=[]
 def interes():
-    slova.append(["ANIMALS","zebra","cat","dog"])
+    slova.append(["ЖИВОТНЫЕ",["ЗЕБРА","Место пешеходного перехода на проезжей части"],["ЖИРАФ","Самое высокое животное суши"],["ГЕПАРД","Самое быстрое наземное животное"]])
 def interes1():
-    slova.append(["FRUITS","apple","pear","banana"])
+    slova.append(["ФРУКТЫ","ЯБЛОКО","ГРУША","БАНАН"])
 def interes2():
-    slova.append(["vegetables","tomato","cucumber","cabbage"])
+    slova.append(["ОВОЩИ","ПОМИДОР","ОГУРЕЦ","КАПУСТА"])
 def interes3():
-    slova.append(["COLORS","red","white","black"])
+    slova.append(["ЦВЕТА","КРАСНЫЙ","БЕЛЫЙ","ЖЕЛТЫЙ"])
+def interes4():
+    slova.append(["ГОРОДА","ТВЕРЬ","МОСКВА","ТОМСК"])
+def close():
+    window.destroy()
 
 
+
+def close_window():
+    window1 = tk.Toplevel(window)
+    window1.title('Закрыть игру')
+    label = Label(window1, text="Вы уверены что хотите покинуть игру?", font='Arial 20')
+    label.pack()
+    button = Button(window1, text='ДА', command=close, font='Arial 20')
+    button.pack()
+    button = Button(window1, text='НЕТ', font='Arial 20')
+    button.pack()
+
+"Создание главного окна"
 window = Tk()
-window.title('Игра виселица')
-#window.geometry('1310x1000')
-window.state('zoomed')
-#photo=tk.PhotoImage(file="png-clipart-cats-cats.png")
-#window.iconphoto(False,photo)
+window.title ("Игра виселица")
+window.attributes('-fullscreen', True)
 
-label = Label(window, text = "Добро пожаловать!",font='Arial 20')
-label.pack(padx=10, pady=10)
+width_window=window.winfo_screenwidth()
+height_window=window.winfo_screenheight()
 
-label = Label(window, text = "Для начала игры нажмите кнопку START",font='Arial 20')
-label.pack()
-button = tkinter.Button(window, text='START', command=choose_topics,font='Arial 20')
-button.pack()
-label = Label(window, text = "Для начала игры нажмите кнопку START",font='Arial 20')
-label.pack(padx=50,pady=50)
+canvas=Canvas(window,width=width_window,height=height_window)
+canvas.config(bg="#848470")
+canvas.pack()
+img=Image.open("imgonline-com-ua-Resize-bmg6Ur2mJa.png")
+img = img.resize((width_window,height_window),Image.LANCZOS)
+img = ImageTk.PhotoImage(img)
+canvas.create_image(0, 0, image=img, anchor="nw")
+window.geometry(f"{width_window}x{height_window}+0+0")
 
+text = canvas.create_text(width_window/2, height_window/2, text="Добро пожаловать в игру Виселица!\n"
+                                                                "Ознакомьтесь с правилами игры и нажмите кнопку START", font=("Arial", 24), fill="white", anchor="center")
+
+button = Button(window, text='START', bg="#848470",fg="black",command=choose_topics,font='Arial 20')
+button.place(x=width_window-200, y=height_window-135)
 
 window.mainloop()
-
-
-
-
