@@ -3,10 +3,11 @@ import tkinter
 import tkinter as tk
 import time
 from tkinter import *
-import pandas as pd
+import json
 from PIL import Image, ImageTk
+from tkinter import ttk
 
-
+#Выбор тем
 def choose_topics():
     new_window = tk.Toplevel(window)
     new_window.title('Выбор тем')
@@ -32,6 +33,7 @@ def choose_topics():
     contButton = Button(new_window, text="CONTINUE", command=pred_start, font='Arial 17', bg="#848470")
     contButton.place(x=widthN - widthN/5.4, y=heightN - heightN/5)
 
+#Окно с введением имени игрока для сохранений в рейтинг
 def pred_start():
     winStart = tk.Toplevel(window)
     winStart.title('Name player')
@@ -54,7 +56,7 @@ def pred_start():
         global name1
         name1 = name_one.get()
         global player
-        player = {"имя": name1, "количество": 0, "время": 1000000}
+        player = {"имя": name1, "количество": 1, "время": 1000000}
 
     button = Button(winStart, text='CONTINUE', bg="#848470", fg="black", command=lambda: [save_name(), start()],
                     font='Arial 18')
@@ -67,8 +69,7 @@ def two():
     global count_player
     count_player = 2
 
-
-
+#Начало игры
 def start():
     start_time = time.time()
     global lifes
@@ -97,6 +98,7 @@ def start():
     slovo=slovo_and_podskazka[0]
     label_word=[]
     btn_alpha=[]
+    #Функция для подсказки на каждое слово в игре
     def podskazka():
         window_podskazka = tk.Toplevel(window)
         window_podskazka.title('Подсказка')
@@ -119,13 +121,22 @@ def start():
     def give_up():
         giveup = tk.Toplevel(window)
         giveup.title('Сдаться')
-
-        button1 = tkinter.Button(giveup, text='Закончить игру', font='Arial 16', bg="#848470", command=close)
-        button1.grid(row=1, column=0)
-
+        width_giveup = giveup.winfo_screenwidth()
+        height_giveup = giveup.winfo_screenheight()
+        canvas = Canvas(giveup, width=width_giveup, height=height_giveup)
+        canvas.config(bg="#848470")
+        canvas.pack()
+        canvas.create_image(0, 0, image=img6, anchor="nw")
+        button1 = Button(giveup, text='Закончить игру', font='Arial 16', bg="#848470", command=close)
+        button1.place(x=width_giveup - width_giveup / 3.5, y=height_giveup - height_giveup / 1.7)
+        button3 = tkinter.Button(giveup, text='Посмотреть рейтинг', font='Arial 16', bg="#848470",command=rating)
+        button3.place(x=width_giveup - width_giveup / 3.5, y=height_giveup - height_giveup / 2.2)
         button2 = tkinter.Button(giveup, text='Сменить слово', font='Arial 16', bg="#848470", command=start)
-        button2.grid(row=1, column=1)
+        button2.place(x=width_giveup - width_giveup / 3.5, y=height_giveup - height_giveup / 3.2)
+        giveup.geometry(f"{width_giveup}x{height_giveup}+0+0")
+        giveup.attributes('-fullscreen', True)
 
+    #создание клавиатуры
     def alphabet():
         x = y = 0
         count = 0
@@ -144,6 +155,7 @@ def start():
         button = tkinter.Button(start_window, text='Сдаться', font='Arial 16',bg="#848470",command=give_up)
         button.place(x=980+x, y=350 -y)
 
+    #расположение "основы" под слова
     def pos_word(slovo):
         x = 0
         for i in range(len(slovo)):
@@ -151,6 +163,8 @@ def start():
             pos.place(x=800+ x, y=270)
             x += 50
             label_word.append(pos)
+
+    #функция отвечает за изменение виселицы после каждой ошибки игрока
     def draw():
         if lifes == 4:
             canvas_start.delete('all')
@@ -201,6 +215,7 @@ def start():
                                           text="Вам выпала тема:" + str(text[0]),
                                           font=("Arial", 25), fill="black")
 
+    #Проверка на нажатие верной/неверной буквы игрока
     def check(clicking, slovo):
         alpha = clicking.widget['text']
         pos = []
@@ -228,14 +243,32 @@ def start():
                     btn["bg"] = "red"
             if (lifes==0):
                 game_over('lose')
+
+    #конец игры
     def game_over(status):
         end_time = time.time()
         elapsed_time = end_time - start_time
+        #функция добавления игрока в рейтинг/изменения результатов игрока
         if status=='win':
             if (elapsed_time < player["время"]):
                 player["время"] = elapsed_time
-            player['количество'] +=1
-            print(player)
+            try:
+                with open("players.json", "r") as f:
+                    data = json.load(f)
+            except FileNotFoundError:
+                data = []
+            found = False
+            for i, p in enumerate(data):
+                if p["имя"] == player["имя"]:
+                    data[i]["количество"] += 1
+                    data[i]["время"] = player["время"]
+                    found = True
+                    break
+            if not found:
+                data.append(player)
+            with open("players.json", "w") as f:
+                json.dump(data, f)
+
             win = tk.Toplevel(window)
             win.title('Win')
             width_win = win.winfo_screenwidth()
@@ -246,7 +279,7 @@ def start():
             canvas.create_image(0, 0, image=img4, anchor="nw")
             button1 = Button(win, text='Закончить игру', font='Arial 16', bg="#848470", command=close)
             button1.place(x=width_win - width_win / 3.5, y=height_win - height_win / 1.7)
-            button3 = tkinter.Button(win, text='Посмотреть рейтинг', font='Arial 16', bg="#848470")
+            button3 = tkinter.Button(win, text='Посмотреть рейтинг', font='Arial 16', bg="#848470",command=rating)
             button3.place(x=width_win - width_win / 3.5, y=height_win - height_win / 2.2)
             button2 = tkinter.Button(win, text='Продолжить игру', font='Arial 16', bg="#848470", command=start)
             button2.place(x=width_win - width_win / 3.5, y=height_win - height_win / 3.2)
@@ -263,7 +296,7 @@ def start():
             canvas.create_image(0, 0, image=img5, anchor="nw")
             button1 = Button(lose, text='Закончить игру', font='Arial 16', bg="#848470", command=close)
             button1.place(x=width_lose - width_lose / 3.5, y=height_lose - height_lose / 1.7)
-            button3 = tkinter.Button(lose, text='Посмотреть рейтинг', font='Arial 16', bg="#848470")
+            button3 = tkinter.Button(lose, text='Посмотреть рейтинг', font='Arial 16', bg="#848470",command=rating)
             button3.place(x=width_lose - width_lose / 3.5, y=height_lose - height_lose / 2.2)
             button2 = tkinter.Button(lose, text='Продолжить игру', font='Arial 16', bg="#848470", command=start)
             button2.place(x=width_lose - width_lose / 3.5, y=height_lose - height_lose / 3.2)
@@ -273,7 +306,31 @@ def start():
     alphabet()
     pos_word(slovo)
 
+#таблица с рейтингом игроков
+def rating():
+    with open("players.json", "r") as f:
+        data = json.load(f)
+    root = tk.Tk()
+    table = ttk.Treeview(root, columns=('player', 'words', 'time'), show='headings')
+
+    table.heading('player', text='Имя игрока')
+    table.heading('words', text='Количество отгаданных слов')
+    table.heading('time', text='Лучшее время')
+
+    for i, d in enumerate(data):
+        table.insert('', 'end', values=[d['имя'], d['количество'], d['время']])
+
+    scrollbar = ttk.Scrollbar(root, orient='vertical', command=table.yview)
+    table.configure(yscroll=scrollbar.set)
+
+    table.grid(row=0, column=0)
+    scrollbar.grid(row=0, column=1, sticky='ns')
+
+    root.mainloop()
+
 slova=[]
+
+#функции с добавлением слов по выбранным темам игрока
 def interes():
     slova.append(["ЖИВОТНЫЕ",["ЗЕБРА","Место пешеходного перехода\n на проезжей части"],["ЖИРАФ","Самое высокое \nживотное суши"],["ГЕПАРД","Самое быстрое \nназемное животное"]])
 def interes1():
@@ -285,14 +342,10 @@ def interes3():
 def interes4():
     slova.append(["ГОРОДА",["ТВЕРЬ","Город Кати Булыгиной"],["ПИТЕР","Город на болоте"],["МОСКВА","Столица России"]])
 def close():
-    with open('rating', 'w') as f:
-        f.write(player.get("имя") + ' ')
-        f.write(str(player.get("количество")) + ' ')
-        f.write(str(player.get("время")) + '\n')
     window.destroy()
 
 
-
+#закрытие окна
 def close_window():
     window1 = tk.Toplevel(window)
     window1.title('Закрыть игру')
@@ -303,7 +356,7 @@ def close_window():
     button = Button(window1, text='НЕТ', font='Arial 20')
     button.pack()
 
-"Создание главного окна"
+#создание главного окна
 window = Tk()
 window.title ("Игра виселица")
 window.attributes('-fullscreen', True)
@@ -313,7 +366,7 @@ height_window=window.winfo_screenheight()
 canvas=Canvas(window,width=width_window,height=height_window)
 canvas.config(bg="#848470")
 canvas.pack()
-img=Image.open("игра виселица.png")
+img=Image.open("hangman_game.png")
 img = img.resize((width_window,height_window),Image.LANCZOS)
 img = ImageTk.PhotoImage(img)
 canvas.create_image(0, 0, image=img, anchor="nw")
@@ -322,7 +375,9 @@ window.geometry(f"{width_window}x{height_window}+0+0")
 button = Button(window, text='START', bg="#848470",fg="black",command=choose_topics,font='Arial 20')
 button.place(x=width_window-width_window/6, y=height_window-height_window/5)
 
-img2 = Image.open("выбор_тем.png")
+
+#изменение размеров картинок
+img2 = Image.open("choice_of_topics.png")
 img2 = img2.resize((width_window, height_window), Image.LANCZOS)
 img2 = ImageTk.PhotoImage(img2)
 
@@ -330,13 +385,16 @@ img3 = Image.open("podskazka.png")
 img3 = img3.resize((300, 250), Image.LANCZOS)
 img3 = ImageTk.PhotoImage(img3)
 
-img4=Image.open("на окно win.png")
+img4=Image.open("win_window.png")
 img4 = img4.resize((width_window, height_window), Image.LANCZOS)
 img4 = ImageTk.PhotoImage(img4)
 
-img5=Image.open("фон на проигрыш.png")
+img5=Image.open("loss_window.png")
 img5 = img5.resize((width_window, height_window), Image.LANCZOS)
 img5 = ImageTk.PhotoImage(img5)
 
+img6=Image.open("give_up_window.png")
+img6 = img6.resize((width_window, height_window), Image.LANCZOS)
+img6 = ImageTk.PhotoImage(img6)
 
 window.mainloop()
